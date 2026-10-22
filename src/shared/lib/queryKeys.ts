@@ -5,3 +5,7 @@ export function instanceStateKey(idInstance: string) {
 export function instanceSettingsKey(idInstance: string) {
   return ["instance", idInstance, "settings"] as const;
 }
+
+export type InstanceQueryKey =
+  | ReturnType<typeof instanceStateKey>
+  | ReturnType<typeof instanceSettingsKey>;

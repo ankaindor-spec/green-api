@@ -1,13 +1,5 @@
 import { AppMessage } from "@/shared/lib";
-
-export type CheckAccountBody = {
-  phoneNumber: number;
-};
-
-export type SendMessageBody = {
-  chatId: string;
-  message: string;
-};
+import type { CheckAccountBody, SendMessageBody } from "./types";
 
 export function checkAccountBody(phone: string): CheckAccountBody {
   const phoneNumber = Number(phone);

@@ -1,4 +1,5 @@
 import { isRecord } from "@/shared/lib";
+import type { ReceptionSettings } from "./types";
 
 export const ENABLE_INCOMING_BODY = {
   webhookUrl: "",
@@ -7,11 +8,6 @@ export const ENABLE_INCOMING_BODY = {
 
 export const SETTINGS_RESTART_MESSAGE =
   "Экземпляр перезапускается. Настройки применятся в течение 5 минут.";
-
-export type ReceptionSettings = {
-  webhookUrl?: unknown;
-  incomingWebhook?: unknown;
-};
 
 export function describeReceptionBlock(settings: ReceptionSettings): string | null {
   const webhook =

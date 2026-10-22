@@ -1,19 +1,11 @@
 import { notificationLockName } from "@/shared/config";
 import { isAbortError, isRecord, sleep } from "@/shared/lib";
+import type { LockBeat, LockHandlers } from "./types";
 
 const HEARTBEAT_MS = 1000;
 const HEARTBEAT_TTL_MS = 2500;
 
-export type LockBlock = "other-tab" | "unavailable";
-
-type Handlers = {
-  onHeld: () => void;
-  onBlocked: (reason: LockBlock) => void;
-  onIdle: () => void;
-  run: (signal: AbortSignal, ownsLock: () => boolean) => Promise<void>;
-};
-
-export async function holdNotificationLock(signal: AbortSignal, handlers: Handlers): Promise<void> {
+export async function holdNotificationLock(signal: AbortSignal, handlers: LockHandlers): Promise<void> {
   const locks = typeof navigator === "undefined" ? undefined : navigator.locks;
   if (locks) {
     await holdWebLock(locks, signal, handlers);
@@ -22,7 +14,7 @@ export async function holdNotificationLock(signal: AbortSignal, handlers: Handle
   await holdHeartbeat(signal, handlers);
 }
 
-async function holdWebLock(locks: LockManager, signal: AbortSignal, handlers: Handlers): Promise<void> {
+async function holdWebLock(locks: LockManager, signal: AbortSignal, handlers: LockHandlers): Promise<void> {
   let misses = 0;
   while (!signal.aborted) {
     let acquired = false;
@@ -72,7 +64,7 @@ async function holdWebLock(locks: LockManager, signal: AbortSignal, handlers: Ha
   }
 }
 
-async function holdHeartbeat(signal: AbortSignal, handlers: Handlers): Promise<void> {
+async function holdHeartbeat(signal: AbortSignal, handlers: LockHandlers): Promise<void> {
   const tabId = createTabId();
   const release = () => {
     try {
@@ -168,12 +160,6 @@ function claim(tabId: string): boolean {
   const after = readBeat();
   return after?.id === tabId && after.nonce === nonce;
 }
-
-type LockBeat = {
-  id: string;
-  at: number;
-  nonce: string;
-};
 
 function readBeat(): LockBeat | null {
   const raw = localStorage.getItem(notificationLockName);

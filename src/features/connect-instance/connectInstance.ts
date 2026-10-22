@@ -1,27 +1,21 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { loadInstance } from "@/entities/chat";
-import type { InstanceData } from "@/entities/chat";
 import {
   createGreenApi,
   describeError,
   describeInstanceState,
   describeReceptionBlock,
-  type ApiCredentials,
 } from "@/shared/api";
-import { instanceSettingsKey, instanceStateKey, isAbortError, sleep } from "@/shared/lib";
+import {
+  instanceSettingsKey,
+  instanceStateKey,
+  isAbortError,
+  sleep,
+  type InstanceQueryKey,
+} from "@/shared/lib";
+import type { ConnectInput, ConnectResult } from "./types";
 
 const CONNECT_GAP_MS = 1000;
-
-export type ConnectResult =
-  | { type: "aborted" }
-  | { type: "chat"; data: InstanceData }
-  | { type: "gate"; kind: "state" | "settings" | "error"; message: string };
-
-export type ConnectInput = {
-  queryClient: QueryClient;
-  credentials: ApiCredentials;
-  signal: AbortSignal;
-};
 
 export async function connectInstance(input: ConnectInput): Promise<ConnectResult> {
   const { queryClient, credentials, signal } = input;
@@ -69,7 +63,7 @@ export async function connectInstance(input: ConnectInput): Promise<ConnectResul
 
 async function fetchFresh<T>(
   queryClient: QueryClient,
-  queryKey: readonly [string, string, string],
+  queryKey: InstanceQueryKey,
   signal: AbortSignal,
   queryFn: (signal: AbortSignal) => Promise<T>,
 ): Promise<T> {

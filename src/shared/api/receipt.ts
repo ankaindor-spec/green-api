@@ -1,9 +1,5 @@
 import { isRecord } from "@/shared/lib";
-
-export type NotificationReceipt = {
-  receiptId: string;
-  body: unknown;
-};
+import type { NotificationReceipt } from "./types";
 
 export function readReceipt(value: unknown): NotificationReceipt | null {
   if (!isRecord(value)) return null;

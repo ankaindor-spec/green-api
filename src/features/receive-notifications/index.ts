@@ -1,2 +1,12 @@
-export { receiveLoop, type PollCode, type PollProblem, type ReceiveLoopOptions } from "./receiveLoop";
-export { holdNotificationLock, type LockBlock } from "./tabLock";
+export { receiveLoop } from "./receiveLoop";
+export { holdNotificationLock } from "./tabLock";
+export type {
+  LockBeat,
+  LockBlock,
+  LockHandlers,
+  PollCode,
+  PollProblem,
+  ReceiveApi,
+  ReceiveLoopOptions,
+  ReportProblem,
+} from "./types";

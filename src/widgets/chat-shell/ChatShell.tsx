@@ -1,23 +1,10 @@
 import { useState } from "react";
-import type { ChatMessage, InstanceData } from "@/entities/chat";
-import type { LockBlock } from "@/features/receive-notifications";
+import type { ChatMessage } from "@/entities/chat";
 import { ChatList } from "./ChatList";
 import { Composer } from "./Composer";
 import { NewChatForm } from "./NewChatForm";
 import { Thread } from "./Thread";
-
-export type ChatShellProps = {
-  data: InstanceData;
-  selectedChatId: string | null;
-  lockNote: LockBlock | null;
-  sending: boolean;
-  creating: boolean;
-  canWrite: boolean;
-  onSelect: (chatId: string) => void;
-  onBack: () => void;
-  onCreate: (phone: string) => Promise<boolean>;
-  onSend: (text: string) => Promise<boolean>;
-};
+import type { ChatShellProps } from "./types";
 
 export function ChatShell({
   data,

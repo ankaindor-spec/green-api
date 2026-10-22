@@ -1,37 +1,16 @@
-import { incomingTextFromNotification, type IncomingText } from "@/entities/chat";
+import { incomingTextFromNotification } from "@/entities/chat";
 import {
   NetworkFailure,
   describeError,
   describeIncomingQuota,
   isUnauthorizedError,
   isWebhookBlockedError,
-  type GreenApiClient,
   type ReceivePayload,
 } from "@/shared/api";
 import { childSignal, isAbortError, sleep, waitAbort } from "@/shared/lib";
+import type { ReceiveApi, ReceiveLoopOptions, ReportProblem } from "./types";
 
 const CLIENT_TIMEOUT_MS = 35_000;
-
-export type PollCode = "webhook" | "unauthorized" | "transient";
-
-export type PollProblem = {
-  message: string;
-  code: PollCode;
-};
-
-type ReceiveApi = Pick<GreenApiClient, "receiveNotification" | "deleteNotification">;
-
-type ReportProblem = (problem: PollProblem | null) => void;
-
-export type ReceiveLoopOptions = {
-  api: ReceiveApi;
-  signal: AbortSignal;
-  knownChatIds: () => ReadonlySet<string>;
-  seenIds: () => ReadonlySet<string>;
-  ownsLock?: () => boolean;
-  onMessage: (message: IncomingText) => void;
-  onProblem: ReportProblem;
-};
 
 export async function receiveLoop(options: ReceiveLoopOptions): Promise<void> {
   const { api, signal, knownChatIds, seenIds, ownsLock, onMessage, onProblem } = options;

@@ -1,22 +1,6 @@
-import type { QueryClient } from "@tanstack/react-query";
-import {
-  SETTINGS_RESTART_MESSAGE,
-  createGreenApi,
-  describeError,
-  type ApiCredentials,
-} from "@/shared/api";
+import { SETTINGS_RESTART_MESSAGE, createGreenApi, describeError } from "@/shared/api";
 import { isAbortError } from "@/shared/lib";
-
-export type EnableReceptionResult =
-  | { type: "aborted" }
-  | { type: "restart"; message: string }
-  | { type: "error"; message: string };
-
-export type EnableReceptionInput = {
-  queryClient: QueryClient;
-  credentials: ApiCredentials;
-  signal: AbortSignal;
-};
+import type { EnableReceptionInput, EnableReceptionResult } from "./types";
 
 export async function enableReception(input: EnableReceptionInput): Promise<EnableReceptionResult> {
   const { queryClient, credentials, signal } = input;

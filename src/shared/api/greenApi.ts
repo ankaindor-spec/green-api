@@ -1,28 +1,12 @@
-import { interpretCheckAccount, type CheckAccountResult } from "./checkAccount";
+import { interpretCheckAccount } from "./checkAccount";
 import { HttpFailure } from "./errors";
-import { createHttp, type ApiCredentials } from "./http";
+import { createHttp } from "./http";
 import { checkAccountBody, sendMessageBody } from "./payload";
 import { readReceipt } from "./receipt";
-import { ENABLE_INCOMING_BODY, readReceptionSettings, type ReceptionSettings } from "./reception";
+import { ENABLE_INCOMING_BODY, readReceptionSettings } from "./reception";
+import type { ApiCredentials, GreenApiClient } from "./types";
 import { receiveTimeoutSeconds } from "@/shared/config";
 import { AppMessage, isRecord, readId } from "@/shared/lib";
-
-export type ReceivePayload =
-  | { kind: "empty" }
-  | { kind: "invalid" }
-  | { kind: "notice"; receiptId: string; body: unknown };
-
-export type DeleteNotificationResult = "deleted" | "gone";
-
-export type GreenApiClient = {
-  getStateInstance(signal?: AbortSignal): Promise<string>;
-  getSettings(signal?: AbortSignal): Promise<ReceptionSettings>;
-  setSettings(signal?: AbortSignal): Promise<void>;
-  checkAccount(phone: string, signal?: AbortSignal): Promise<CheckAccountResult>;
-  sendMessage(chatId: string, message: string, signal?: AbortSignal): Promise<string>;
-  receiveNotification(signal?: AbortSignal): Promise<ReceivePayload>;
-  deleteNotification(receiptId: string, signal?: AbortSignal): Promise<DeleteNotificationResult>;
-};
 
 export function createGreenApi(credentials: ApiCredentials): GreenApiClient {
   const http = createHttp(credentials);

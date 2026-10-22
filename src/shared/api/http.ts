@@ -1,24 +1,7 @@
 import axios, { AxiosError, type AxiosInstance } from "axios";
 import { HttpFailure, NetworkFailure } from "./errors";
+import type { ApiCredentials, HttpClient, HttpMethod, HttpResponse } from "./types";
 import { isAbortError } from "@/shared/lib";
-
-export type ApiCredentials = {
-  idInstance: string;
-  apiTokenInstance: string;
-  apiUrl: string;
-};
-
-export type HttpMethod = "GET" | "POST" | "DELETE";
-
-export type HttpResponse = {
-  text: string;
-  json: unknown;
-};
-
-export type HttpClient = {
-  url(method: string, receiptId?: string): string;
-  request(url: string, method: HttpMethod, body: unknown, signal?: AbortSignal): Promise<HttpResponse>;
-};
 
 export function createHttp(credentials: ApiCredentials): HttpClient {
   const client: AxiosInstance = axios.create({

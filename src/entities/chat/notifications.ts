@@ -1,11 +1,5 @@
 import { isRecord, readId } from "@/shared/lib";
-
-export type IncomingText = {
-  idMessage: string;
-  chatId: string;
-  text: string;
-  chatName?: string;
-};
+import type { IncomingText } from "./types";
 
 export function incomingTextFromNotification(
   body: unknown,

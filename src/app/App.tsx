@@ -25,10 +25,7 @@ import { ChatPage } from "@/pages/chat";
 import { GatePage } from "@/pages/gate";
 import { LoginPage, type LoginInput } from "@/pages/login";
 import { createGreenApi, describeError, resolveApiUrl } from "@/shared/api";
-
-type Phase = "login" | "checking" | "gate" | "chat";
-type GateKind = "state" | "settings" | "restart" | "error";
-type GateView = { kind: GateKind; message: string };
+import type { GateKind, GateView, Phase } from "./types";
 
 const EMPTY_DATA: InstanceData = { chats: [], messages: [] };
 const LOCKED_WRITE = "Пишите из вкладки, которая принимает уведомления.";
