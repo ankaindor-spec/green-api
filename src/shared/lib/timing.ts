@@ -1,6 +1,7 @@
+import { isRecord } from "./records";
+
 export function isAbortError(error: unknown): boolean {
-  if (!error || typeof error !== "object") return false;
-  return (error as { name?: string }).name === "AbortError";
+  return isRecord(error) && error.name === "AbortError";
 }
 
 export function sleep(ms: number, signal: AbortSignal): Promise<void> {
@@ -31,10 +32,13 @@ export function waitAbort(signal: AbortSignal): Promise<void> {
   });
 }
 
-export function childSignal(
-  parent: AbortSignal,
-  ms: number,
-): { signal: AbortSignal; dispose: () => void; timedOut: () => boolean } {
+export type ChildSignal = {
+  signal: AbortSignal;
+  dispose: () => void;
+  timedOut: () => boolean;
+};
+
+export function childSignal(parent: AbortSignal, ms: number): ChildSignal {
   const controller = new AbortController();
   let timed = false;
   const timer = setTimeout(() => {

@@ -14,11 +14,16 @@ export {
   isWebhookBlockedError,
   type Failure,
 } from "./errors";
-export { createGreenApi, type GreenApiClient, type ReceivePayload } from "./greenApi";
+export {
+  createGreenApi,
+  type DeleteNotificationResult,
+  type GreenApiClient,
+  type ReceivePayload,
+} from "./greenApi";
 export { createHttp, parseBody, type ApiCredentials, type HttpClient, type HttpMethod, type HttpResponse } from "./http";
 export { describeInstanceState, type InstanceStateCopy } from "./instanceState";
-export { checkAccountBody, sendMessageBody } from "./payload";
-export { readReceipt } from "./receipt";
+export { checkAccountBody, sendMessageBody, type CheckAccountBody, type SendMessageBody } from "./payload";
+export { readReceipt, type NotificationReceipt } from "./receipt";
 export {
   ENABLE_INCOMING_BODY,
   SETTINGS_RESTART_MESSAGE,

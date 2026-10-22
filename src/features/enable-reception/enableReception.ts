@@ -12,11 +12,13 @@ export type EnableReceptionResult =
   | { type: "restart"; message: string }
   | { type: "error"; message: string };
 
-export async function enableReception(input: {
+export type EnableReceptionInput = {
   queryClient: QueryClient;
   credentials: ApiCredentials;
   signal: AbortSignal;
-}): Promise<EnableReceptionResult> {
+};
+
+export async function enableReception(input: EnableReceptionInput): Promise<EnableReceptionResult> {
   const { queryClient, credentials, signal } = input;
   const api = createGreenApi(credentials);
   try {

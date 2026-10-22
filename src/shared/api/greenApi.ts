@@ -12,6 +12,8 @@ export type ReceivePayload =
   | { kind: "invalid" }
   | { kind: "notice"; receiptId: string; body: unknown };
 
+export type DeleteNotificationResult = "deleted" | "gone";
+
 export type GreenApiClient = {
   getStateInstance(signal?: AbortSignal): Promise<string>;
   getSettings(signal?: AbortSignal): Promise<ReceptionSettings>;
@@ -19,7 +21,7 @@ export type GreenApiClient = {
   checkAccount(phone: string, signal?: AbortSignal): Promise<CheckAccountResult>;
   sendMessage(chatId: string, message: string, signal?: AbortSignal): Promise<string>;
   receiveNotification(signal?: AbortSignal): Promise<ReceivePayload>;
-  deleteNotification(receiptId: string, signal?: AbortSignal): Promise<"deleted" | "gone">;
+  deleteNotification(receiptId: string, signal?: AbortSignal): Promise<DeleteNotificationResult>;
 };
 
 export function createGreenApi(credentials: ApiCredentials): GreenApiClient {

@@ -1,17 +1,14 @@
 import { useState, type FormEvent, type KeyboardEvent } from "react";
 import { MAX_MESSAGE_LENGTH, MESSAGE_TOO_LONG, prepareOutgoingText } from "@/entities/chat";
 
-export function Composer({
-  disabled,
-  busy,
-  onSend,
-  placeholder,
-}: {
+type Props = {
   disabled: boolean;
   busy: boolean;
   onSend: (text: string) => Promise<boolean>;
   placeholder?: string;
-}) {
+};
+
+export function Composer({ disabled, busy, onSend, placeholder }: Props) {
   const [draft, setDraft] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
   const trimmedLength = draft.trim().length;

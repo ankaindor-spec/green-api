@@ -1,1 +1,1 @@
-export { enableReception, type EnableReceptionResult } from "./enableReception";
+export { enableReception, type EnableReceptionInput, type EnableReceptionResult } from "./enableReception";

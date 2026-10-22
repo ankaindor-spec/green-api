@@ -1,16 +1,13 @@
 import { lastMessage, sortChats, type Chat, type ChatMessage } from "@/entities/chat";
 
-export function ChatList({
-  chats,
-  messages,
-  selectedChatId,
-  onSelect,
-}: {
+type Props = {
   chats: readonly Chat[];
   messages: readonly ChatMessage[];
   selectedChatId: string | null;
   onSelect: (chatId: string) => void;
-}) {
+};
+
+export function ChatList({ chats, messages, selectedChatId, onSelect }: Props) {
   const ordered = sortChats(chats, messages);
   if (ordered.length === 0) {
     return <p className="empty-copy">Пока нет чатов. Начните новый по номеру телефона.</p>;

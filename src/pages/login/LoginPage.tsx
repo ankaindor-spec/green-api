@@ -6,13 +6,12 @@ export type LoginInput = {
   apiUrl: string;
 };
 
-export function LoginPage({
-  error,
-  onSubmit,
-}: {
+type Props = {
   error: string | null;
   onSubmit: (input: LoginInput) => void;
-}) {
+};
+
+export function LoginPage({ error, onSubmit }: Props) {
   const [idInstance, setIdInstance] = useState("");
   const [apiTokenInstance, setApiTokenInstance] = useState("");
   const [apiUrl, setApiUrl] = useState("");

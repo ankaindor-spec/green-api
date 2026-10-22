@@ -17,11 +17,13 @@ export type ConnectResult =
   | { type: "chat"; data: InstanceData }
   | { type: "gate"; kind: "state" | "settings" | "error"; message: string };
 
-export async function connectInstance(input: {
+export type ConnectInput = {
   queryClient: QueryClient;
   credentials: ApiCredentials;
   signal: AbortSignal;
-}): Promise<ConnectResult> {
+};
+
+export async function connectInstance(input: ConnectInput): Promise<ConnectResult> {
   const { queryClient, credentials, signal } = input;
   const api = createGreenApi(credentials);
   try {

@@ -1,5 +1,5 @@
 import { notificationLockName } from "@/shared/config";
-import { isAbortError, sleep } from "@/shared/lib";
+import { isAbortError, isRecord, sleep } from "@/shared/lib";
 
 const HEARTBEAT_MS = 1000;
 const HEARTBEAT_TTL_MS = 2500;
@@ -169,16 +169,21 @@ function claim(tabId: string): boolean {
   return after?.id === tabId && after.nonce === nonce;
 }
 
-function readBeat(): { id: string; at: number; nonce: string } | null {
+type LockBeat = {
+  id: string;
+  at: number;
+  nonce: string;
+};
+
+function readBeat(): LockBeat | null {
   const raw = localStorage.getItem(notificationLockName);
   if (!raw) return null;
   try {
     const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") return null;
-    const record = parsed as { id?: unknown; at?: unknown; nonce?: unknown };
-    if (typeof record.id !== "string" || typeof record.at !== "number") return null;
-    const nonce = typeof record.nonce === "string" ? record.nonce : "";
-    return { id: record.id, at: record.at, nonce };
+    if (!isRecord(parsed)) return null;
+    if (typeof parsed.id !== "string" || typeof parsed.at !== "number") return null;
+    const nonce = typeof parsed.nonce === "string" ? parsed.nonce : "";
+    return { id: parsed.id, at: parsed.at, nonce };
   } catch {
     return null;
   }

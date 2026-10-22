@@ -1,1 +1,1 @@
-export { ChatShell } from "./ChatShell";
+export { ChatShell, type ChatShellProps } from "./ChatShell";

@@ -12,20 +12,28 @@ import { childSignal, isAbortError, sleep, waitAbort } from "@/shared/lib";
 
 const CLIENT_TIMEOUT_MS = 35_000;
 
+export type PollCode = "webhook" | "unauthorized" | "transient";
+
 export type PollProblem = {
   message: string;
-  code: "webhook" | "unauthorized" | "transient";
+  code: PollCode;
 };
 
-export async function receiveLoop(options: {
-  api: Pick<GreenApiClient, "receiveNotification" | "deleteNotification">;
+type ReceiveApi = Pick<GreenApiClient, "receiveNotification" | "deleteNotification">;
+
+type ReportProblem = (problem: PollProblem | null) => void;
+
+export type ReceiveLoopOptions = {
+  api: ReceiveApi;
   signal: AbortSignal;
   knownChatIds: () => ReadonlySet<string>;
   seenIds: () => ReadonlySet<string>;
   ownsLock?: () => boolean;
   onMessage: (message: IncomingText) => void;
-  onProblem: (problem: PollProblem | null) => void;
-}): Promise<void> {
+  onProblem: ReportProblem;
+};
+
+export async function receiveLoop(options: ReceiveLoopOptions): Promise<void> {
   const { api, signal, knownChatIds, seenIds, ownsLock, onMessage, onProblem } = options;
   const stillOwns = () => !ownsLock || ownsLock();
   let delay = 2000;
@@ -78,10 +86,10 @@ export async function receiveLoop(options: {
 }
 
 async function deleteUntilGone(
-  api: Pick<GreenApiClient, "deleteNotification">,
+  api: Pick<ReceiveApi, "deleteNotification">,
   receiptId: string,
   signal: AbortSignal,
-  onProblem: (problem: PollProblem | null) => void,
+  onProblem: ReportProblem,
 ): Promise<"ok" | "stop"> {
   let delay = 1000;
   while (!signal.aborted) {
@@ -126,7 +134,7 @@ async function withTimeout<T>(
 async function reportAndMaybeStop(
   error: unknown,
   signal: AbortSignal,
-  onProblem: (problem: PollProblem | null) => void,
+  onProblem: ReportProblem,
 ): Promise<boolean> {
   const code = isUnauthorizedError(error)
     ? "unauthorized"

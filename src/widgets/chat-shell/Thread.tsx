@@ -6,15 +6,13 @@ const timeFormat = new Intl.DateTimeFormat("ru-RU", {
   minute: "2-digit",
 });
 
-export function Thread({
-  chat,
-  messages,
-  onBack,
-}: {
+type Props = {
   chat: Chat | null;
   messages: readonly ChatMessage[];
   onBack: () => void;
-}) {
+};
+
+export function Thread({ chat, messages, onBack }: Props) {
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

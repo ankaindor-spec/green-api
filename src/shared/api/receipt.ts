@@ -1,8 +1,11 @@
 import { isRecord } from "@/shared/lib";
 
-export function readReceipt(
-  value: unknown,
-): { receiptId: string; body: unknown } | null {
+export type NotificationReceipt = {
+  receiptId: string;
+  body: unknown;
+};
+
+export function readReceipt(value: unknown): NotificationReceipt | null {
   if (!isRecord(value)) return null;
   const rawId = value.receiptId;
   if (typeof rawId !== "string" && typeof rawId !== "number") return null;

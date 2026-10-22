@@ -2,19 +2,20 @@ import {
   prepareOutgoingText,
   type Chat,
   type ChatMessage,
+  type TextRejectReason,
 } from "@/entities/chat";
 import { createGreenApi, describeError, type ApiCredentials } from "@/shared/api";
 import { isAbortError } from "@/shared/lib";
 
 export type SendTextResult =
   | { type: "denied" }
-  | { type: "invalid"; reason: "empty" | "too-long" }
+  | { type: "invalid"; reason: TextRejectReason }
   | { type: "ignored" }
   | { type: "sent"; message: ChatMessage }
   | { type: "failed"; message: string }
   | { type: "aborted" };
 
-export async function sendText(input: {
+export type SendTextInput = {
   credentials: ApiCredentials;
   chatId: string;
   text: string;
@@ -22,7 +23,9 @@ export async function sendText(input: {
   canWrite: boolean;
   readChats: () => readonly Chat[];
   beginRequest: () => void;
-}): Promise<SendTextResult> {
+};
+
+export async function sendText(input: SendTextInput): Promise<SendTextResult> {
   if (!input.canWrite) return { type: "denied" };
   const prepared = prepareOutgoingText(input.text);
   if (!prepared.ok) return { type: "invalid", reason: prepared.reason };

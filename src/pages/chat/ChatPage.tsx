@@ -1,6 +1,11 @@
-import type { InstanceData } from "@/entities/chat";
-import type { LockBlock } from "@/features/receive-notifications";
-import { ChatShell } from "@/widgets/chat-shell";
+import { ChatShell, type ChatShellProps } from "@/widgets/chat-shell";
+
+type Props = ChatShellProps & {
+  idInstance: string;
+  actionError: string | null;
+  pollError: string | null;
+  onLogout: () => void;
+};
 
 export function ChatPage({
   idInstance,
@@ -17,22 +22,7 @@ export function ChatPage({
   onBack,
   onCreate,
   onSend,
-}: {
-  idInstance: string;
-  data: InstanceData;
-  selectedChatId: string | null;
-  lockNote: LockBlock | null;
-  actionError: string | null;
-  pollError: string | null;
-  sending: boolean;
-  creating: boolean;
-  canWrite: boolean;
-  onLogout: () => void;
-  onSelect: (chatId: string) => void;
-  onBack: () => void;
-  onCreate: (phone: string) => Promise<boolean>;
-  onSend: (text: string) => Promise<boolean>;
-}) {
+}: Props) {
   const selected = data.chats.some((chat) => chat.chatId === selectedChatId);
   const lockText =
     lockNote === "other-tab"

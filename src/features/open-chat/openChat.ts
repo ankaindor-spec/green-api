@@ -14,14 +14,16 @@ export type OpenChatResult =
   | { type: "failed"; message: string }
   | { type: "aborted" };
 
-export async function openChat(input: {
+export type OpenChatInput = {
   credentials: ApiCredentials;
   rawPhone: string;
   signal: AbortSignal;
   canWrite: boolean;
   readChats: () => readonly Chat[];
   beginRequest: () => void;
-}): Promise<OpenChatResult> {
+};
+
+export async function openChat(input: OpenChatInput): Promise<OpenChatResult> {
   if (!input.canWrite) return { type: "denied" };
   const phone = normalizePhone(input.rawPhone);
   if (!phone) return { type: "invalid", message: PHONE_ERROR };

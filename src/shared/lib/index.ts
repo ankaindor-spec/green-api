@@ -3,4 +3,4 @@ export { createQueryClient } from "./queryClient";
 export { instanceSettingsKey, instanceStateKey } from "./queryKeys";
 export { readId } from "./readId";
 export { isRecord } from "./records";
-export { childSignal, isAbortError, sleep, waitAbort } from "./timing";
+export { childSignal, isAbortError, sleep, waitAbort, type ChildSignal } from "./timing";
