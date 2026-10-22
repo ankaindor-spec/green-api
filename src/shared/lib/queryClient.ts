@@ -1,4 +1,9 @@
 import { QueryClient } from "@tanstack/react-query";
+import type { InstanceRequest } from "@/shared/api/types";
+
+export type InstanceQuery = InstanceRequest & {
+  queryClient: QueryClient;
+};
 
 export function createQueryClient(): QueryClient {
   return new QueryClient({

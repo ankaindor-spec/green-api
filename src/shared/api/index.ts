@@ -1,9 +1,5 @@
 export { ApiUrlError, resolveApiUrl } from "./apiUrl";
-export {
-  NOT_ON_TELEGRAM,
-  interpretCheckAccount,
-  type CheckAccountResult,
-} from "./checkAccount";
+export { NOT_ON_TELEGRAM, interpretCheckAccount } from "./checkAccount";
 export {
   HttpFailure,
   NetworkFailure,
@@ -12,11 +8,10 @@ export {
   describeIncomingQuota,
   isUnauthorizedError,
   isWebhookBlockedError,
-  type Failure,
 } from "./errors";
-export { createGreenApi, type GreenApiClient, type ReceivePayload } from "./greenApi";
-export { createHttp, parseBody, type ApiCredentials, type HttpClient, type HttpMethod, type HttpResponse } from "./http";
-export { describeInstanceState, type InstanceStateCopy } from "./instanceState";
+export { createGreenApi } from "./greenApi";
+export { createHttp, parseBody } from "./http";
+export { describeInstanceState } from "./instanceState";
 export { checkAccountBody, sendMessageBody } from "./payload";
 export { readReceipt } from "./receipt";
 export {
@@ -24,5 +19,21 @@ export {
   SETTINGS_RESTART_MESSAGE,
   describeReceptionBlock,
   readReceptionSettings,
-  type ReceptionSettings,
 } from "./reception";
+export type {
+  ApiCredentials,
+  CheckAccountBody,
+  CheckAccountResult,
+  DeleteNotificationResult,
+  Failure,
+  GreenApiClient,
+  HttpClient,
+  HttpMethod,
+  HttpResponse,
+  InstanceRequest,
+  InstanceStateCopy,
+  NotificationReceipt,
+  ReceivePayload,
+  ReceptionSettings,
+  SendMessageBody,
+} from "./types";

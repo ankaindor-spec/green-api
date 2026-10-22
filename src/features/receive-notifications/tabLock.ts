@@ -1,19 +1,11 @@
 import { notificationLockName } from "@/shared/config";
-import { isAbortError, sleep } from "@/shared/lib";
+import { isAbortError, isRecord, sleep } from "@/shared/lib";
+import type { LockBeat, LockHandlers } from "./types";
 
 const HEARTBEAT_MS = 1000;
 const HEARTBEAT_TTL_MS = 2500;
 
-export type LockBlock = "other-tab" | "unavailable";
-
-type Handlers = {
-  onHeld: () => void;
-  onBlocked: (reason: LockBlock) => void;
-  onIdle: () => void;
-  run: (signal: AbortSignal, ownsLock: () => boolean) => Promise<void>;
-};
-
-export async function holdNotificationLock(signal: AbortSignal, handlers: Handlers): Promise<void> {
+export async function holdNotificationLock(signal: AbortSignal, handlers: LockHandlers): Promise<void> {
   const locks = typeof navigator === "undefined" ? undefined : navigator.locks;
   if (locks) {
     await holdWebLock(locks, signal, handlers);
@@ -22,7 +14,7 @@ export async function holdNotificationLock(signal: AbortSignal, handlers: Handle
   await holdHeartbeat(signal, handlers);
 }
 
-async function holdWebLock(locks: LockManager, signal: AbortSignal, handlers: Handlers): Promise<void> {
+async function holdWebLock(locks: LockManager, signal: AbortSignal, handlers: LockHandlers): Promise<void> {
   let misses = 0;
   while (!signal.aborted) {
     let acquired = false;
@@ -72,7 +64,7 @@ async function holdWebLock(locks: LockManager, signal: AbortSignal, handlers: Ha
   }
 }
 
-async function holdHeartbeat(signal: AbortSignal, handlers: Handlers): Promise<void> {
+async function holdHeartbeat(signal: AbortSignal, handlers: LockHandlers): Promise<void> {
   const tabId = createTabId();
   const release = () => {
     try {
@@ -169,16 +161,15 @@ function claim(tabId: string): boolean {
   return after?.id === tabId && after.nonce === nonce;
 }
 
-function readBeat(): { id: string; at: number; nonce: string } | null {
+function readBeat(): LockBeat | null {
   const raw = localStorage.getItem(notificationLockName);
   if (!raw) return null;
   try {
     const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") return null;
-    const record = parsed as { id?: unknown; at?: unknown; nonce?: unknown };
-    if (typeof record.id !== "string" || typeof record.at !== "number") return null;
-    const nonce = typeof record.nonce === "string" ? record.nonce : "";
-    return { id: record.id, at: record.at, nonce };
+    if (!isRecord(parsed)) return null;
+    if (typeof parsed.id !== "string" || typeof parsed.at !== "number") return null;
+    const nonce = typeof parsed.nonce === "string" ? parsed.nonce : "";
+    return { id: parsed.id, at: parsed.at, nonce };
   } catch {
     return null;
   }

@@ -1,5 +1,4 @@
-import type { IncomingText } from "./notifications";
-import type { Chat, ChatMessage, InstanceData } from "./types";
+import type { Chat, ChatMessage, IncomingText, InstanceData } from "./types";
 
 export function findChatByPhone(chats: readonly Chat[], phone: string): Chat | undefined {
   return chats.find((chat) => chat.phone === phone);

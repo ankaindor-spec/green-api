@@ -1,13 +1,10 @@
 import { HttpFailure, describeError } from "./errors";
 import { describeInstanceState } from "./instanceState";
+import type { CheckAccountResult } from "./types";
 import { isRecord, readId } from "@/shared/lib";
 
 export const NOT_ON_TELEGRAM =
   "Этого номера нет в Telegram, или он скрыт настройками приватности.";
-
-export type CheckAccountResult =
-  | { ok: true; chatId: string }
-  | { ok: false; message: string };
 
 export function interpretCheckAccount(body: unknown): CheckAccountResult {
   if (!isRecord(body)) return { ok: false, message: NOT_ON_TELEGRAM };

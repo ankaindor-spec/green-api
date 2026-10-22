@@ -1,6 +1,7 @@
 export { AppMessage } from "./appMessage";
-export { createQueryClient } from "./queryClient";
-export { instanceSettingsKey, instanceStateKey } from "./queryKeys";
+export { createQueryClient, type InstanceQuery } from "./queryClient";
+export type { Ok, Variant, WithMessage } from "./variant";
+export { instanceSettingsKey, instanceStateKey, type InstanceQueryKey } from "./queryKeys";
 export { readId } from "./readId";
 export { isRecord } from "./records";
-export { childSignal, isAbortError, sleep, waitAbort } from "./timing";
+export { childSignal, isAbortError, sleep, waitAbort, type ChildSignal } from "./timing";

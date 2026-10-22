@@ -1,3 +1,16 @@
+type Props = {
+  title: string;
+  message: string;
+  idInstance: string;
+  error: string | null;
+  pending: boolean;
+  showEnable: boolean;
+  showRecheck: boolean;
+  onEnable: () => void;
+  onRecheck: () => void;
+  onLogout: () => void;
+};
+
 export function GatePage({
   title,
   message,
@@ -9,18 +22,7 @@ export function GatePage({
   onEnable,
   onRecheck,
   onLogout,
-}: {
-  title: string;
-  message: string;
-  idInstance: string;
-  error: string | null;
-  pending: boolean;
-  showEnable: boolean;
-  showRecheck: boolean;
-  onEnable: () => void;
-  onRecheck: () => void;
-  onLogout: () => void;
-}) {
+}: Props) {
   return (
     <main className="gate-wrap">
       <section className="card" aria-busy={pending}>

@@ -1,14 +1,12 @@
 import { useState, type FormEvent } from "react";
 
-export function NewChatForm({
-  busy,
-  disabled = false,
-  onCreate,
-}: {
+type Props = {
   busy: boolean;
   disabled?: boolean;
   onCreate: (phone: string) => Promise<boolean>;
-}) {
+};
+
+export function NewChatForm({ busy, disabled = false, onCreate }: Props) {
   const [phone, setPhone] = useState("");
 
   async function submit(event: FormEvent<HTMLFormElement>) {

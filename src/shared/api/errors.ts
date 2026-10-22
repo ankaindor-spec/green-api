@@ -1,4 +1,5 @@
 import { ApiUrlError } from "./apiUrl";
+import type { Failure } from "./types";
 import { AppMessage, isAbortError, isRecord } from "@/shared/lib";
 
 export class HttpFailure extends Error {
@@ -19,10 +20,6 @@ export class NetworkFailure extends Error {
     this.name = "NetworkFailure";
   }
 }
-
-export type Failure =
-  | { kind: "network" }
-  | { kind: "http"; status: number; body: unknown };
 
 const INVALID_TOKEN = "Неверный токен экземпляра.";
 const TOO_MANY = "Слишком много запросов. Подождите и повторите попытку.";

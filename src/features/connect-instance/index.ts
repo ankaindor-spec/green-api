@@ -1,1 +1,2 @@
-export { connectInstance, type ConnectResult } from "./connectInstance";
+export { connectInstance } from "./connectInstance";
+export type { ConnectGateKind, ConnectInput, ConnectResult } from "./types";

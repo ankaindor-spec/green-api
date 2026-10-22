@@ -1,18 +1,12 @@
 import { useState, type FormEvent } from "react";
+import type { Session } from "@/entities/session";
 
-export type LoginInput = {
-  idInstance: string;
-  apiTokenInstance: string;
-  apiUrl: string;
+type Props = {
+  error: string | null;
+  onSubmit: (input: Session) => void;
 };
 
-export function LoginPage({
-  error,
-  onSubmit,
-}: {
-  error: string | null;
-  onSubmit: (input: LoginInput) => void;
-}) {
+export function LoginPage({ error, onSubmit }: Props) {
   const [idInstance, setIdInstance] = useState("");
   const [apiTokenInstance, setApiTokenInstance] = useState("");
   const [apiUrl, setApiUrl] = useState("");

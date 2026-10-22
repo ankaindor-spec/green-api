@@ -7,8 +7,17 @@ export {
   sortChats,
   upsertIncoming,
 } from "./chats";
-export { MAX_MESSAGE_LENGTH, MESSAGE_TOO_LONG, prepareOutgoingText, type PreparedText } from "./message";
-export { incomingTextFromNotification, type IncomingText } from "./notifications";
+export { MAX_MESSAGE_LENGTH, MESSAGE_TOO_LONG, prepareOutgoingText } from "./message";
+export { incomingTextFromNotification } from "./notifications";
 export { normalizePhone } from "./phone";
 export { loadInstance, saveInstance } from "./storage";
-export type { Chat, ChatMessage, InstanceData } from "./types";
+export type {
+  Chat,
+  ChatMessage,
+  ChatWrite,
+  IncomingText,
+  InstanceData,
+  MessageDirection,
+  PreparedText,
+  TextRejectReason,
+} from "./types";

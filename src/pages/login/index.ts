@@ -1,1 +1,1 @@
-export { LoginPage, type LoginInput } from "./LoginPage";
+export { LoginPage } from "./LoginPage";

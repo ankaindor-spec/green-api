@@ -1,7 +1,4 @@
-export type InstanceStateCopy = {
-  allowed: boolean;
-  message: string;
-};
+import type { InstanceStateCopy } from "./types";
 
 export function describeInstanceState(state: string): InstanceStateCopy {
   switch (state) {

@@ -1,1 +1,2 @@
-export { openChat, type OpenChatResult } from "./openChat";
+export { openChat } from "./openChat";
+export type { OpenChatInput, OpenChatResult } from "./types";

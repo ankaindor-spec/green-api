@@ -1,6 +1,7 @@
 import { AppMessage } from "@/shared/lib";
+import type { CheckAccountBody, SendMessageBody } from "./types";
 
-export function checkAccountBody(phone: string): { phoneNumber: number } {
+export function checkAccountBody(phone: string): CheckAccountBody {
   const phoneNumber = Number(phone);
   if (!Number.isSafeInteger(phoneNumber)) {
     throw new AppMessage("Номер не удалось передать как целое число.");
@@ -8,7 +9,7 @@ export function checkAccountBody(phone: string): { phoneNumber: number } {
   return { phoneNumber };
 }
 
-export function sendMessageBody(chatId: string, message: string): { chatId: string; message: string } {
+export function sendMessageBody(chatId: string, message: string): SendMessageBody {
   if (!chatId || chatId.includes("@")) {
     throw new AppMessage("Нельзя отправить сообщение: у чата нет сохранённого chatId.");
   }

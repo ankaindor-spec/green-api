@@ -1,27 +1,12 @@
-import { findChatByChatId, findChatByPhone, normalizePhone, type Chat } from "@/entities/chat";
-import { NOT_ON_TELEGRAM, createGreenApi, describeError, type ApiCredentials } from "@/shared/api";
+import { findChatByChatId, findChatByPhone, normalizePhone } from "@/entities/chat";
+import { NOT_ON_TELEGRAM, createGreenApi, describeError } from "@/shared/api";
 import { isAbortError } from "@/shared/lib";
+import type { OpenChatInput, OpenChatResult } from "./types";
 
 const PHONE_ERROR =
   "Введите номер в международном формате: от 8 до 15 цифр, без плюса и без нуля в начале.";
 
-export type OpenChatResult =
-  | { type: "denied" }
-  | { type: "invalid"; message: string }
-  | { type: "selected"; chatId: string }
-  | { type: "created"; chatId: string; phone: string }
-  | { type: "rejected"; message: string }
-  | { type: "failed"; message: string }
-  | { type: "aborted" };
-
-export async function openChat(input: {
-  credentials: ApiCredentials;
-  rawPhone: string;
-  signal: AbortSignal;
-  canWrite: boolean;
-  readChats: () => readonly Chat[];
-  beginRequest: () => void;
-}): Promise<OpenChatResult> {
+export async function openChat(input: OpenChatInput): Promise<OpenChatResult> {
   if (!input.canWrite) return { type: "denied" };
   const phone = normalizePhone(input.rawPhone);
   if (!phone) return { type: "invalid", message: PHONE_ERROR };

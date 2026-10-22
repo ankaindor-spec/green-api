@@ -1,1 +1,2 @@
-export { sendText, type SendTextResult } from "./sendText";
+export { sendText } from "./sendText";
+export type { SendTextInput, SendTextResult } from "./types";
