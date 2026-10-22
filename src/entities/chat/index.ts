@@ -12,13 +12,12 @@ export { incomingTextFromNotification } from "./notifications";
 export { normalizePhone } from "./phone";
 export { loadInstance, saveInstance } from "./storage";
 export type {
-  AcceptedText,
   Chat,
   ChatMessage,
+  ChatWrite,
   IncomingText,
   InstanceData,
   MessageDirection,
   PreparedText,
-  RejectedText,
   TextRejectReason,
 } from "./types";

@@ -1,7 +1,14 @@
+import type { Ok, Variant, WithMessage } from "@/shared/lib/variant";
+
 export type ApiCredentials = {
   idInstance: string;
   apiTokenInstance: string;
   apiUrl: string;
+};
+
+export type InstanceRequest = {
+  credentials: ApiCredentials;
+  signal: AbortSignal;
 };
 
 export type HttpMethod = "GET" | "POST" | "DELETE";
@@ -35,19 +42,11 @@ export type NotificationReceipt = {
   body: unknown;
 };
 
-export type ReceiveEmpty = {
-  kind: "empty";
-};
-
-export type ReceiveInvalid = {
-  kind: "invalid";
-};
-
-export type ReceiveNotice = NotificationReceipt & {
-  kind: "notice";
-};
-
-export type ReceivePayload = ReceiveEmpty | ReceiveInvalid | ReceiveNotice;
+export type ReceivePayload = Variant<"kind", {
+  empty: void;
+  invalid: void;
+  notice: NotificationReceipt;
+}>;
 
 export type DeleteNotificationResult = "deleted" | "gone";
 
@@ -56,34 +55,16 @@ export type ReceptionSettings = {
   incomingWebhook?: unknown;
 };
 
-export type CheckAccountFound = {
-  ok: true;
-  chatId: string;
-};
+export type CheckAccountResult = Ok<{ chatId: string }>;
 
-export type CheckAccountMissing = {
-  ok: false;
-  message: string;
-};
-
-export type CheckAccountResult = CheckAccountFound | CheckAccountMissing;
-
-export type InstanceStateCopy = {
+export type InstanceStateCopy = WithMessage & {
   allowed: boolean;
-  message: string;
 };
 
-export type FailureNetwork = {
-  kind: "network";
-};
-
-export type FailureHttp = {
-  kind: "http";
-  status: number;
-  body: unknown;
-};
-
-export type Failure = FailureNetwork | FailureHttp;
+export type Failure = Variant<"kind", {
+  network: void;
+  http: { status: number; body: unknown };
+}>;
 
 export type GreenApiClient = {
   getStateInstance(signal?: AbortSignal): Promise<string>;

@@ -1,3 +1,5 @@
+import type { Ok } from "@/shared/lib";
+
 export type MessageDirection = "in" | "out";
 
 export type Chat = {
@@ -6,12 +8,19 @@ export type Chat = {
   title?: string;
 };
 
-export type ChatMessage = {
+type MessageText = {
   idMessage: string;
   chatId: string;
   text: string;
+};
+
+export type ChatMessage = MessageText & {
   direction: MessageDirection;
   timestamp: number;
+};
+
+export type IncomingText = MessageText & {
+  chatName?: string;
 };
 
 export type InstanceData = {
@@ -21,21 +30,10 @@ export type InstanceData = {
 
 export type TextRejectReason = "empty" | "too-long";
 
-export type AcceptedText = {
-  ok: true;
-  text: string;
-};
+export type PreparedText = Ok<{ text: string }, { reason: TextRejectReason }>;
 
-export type RejectedText = {
-  ok: false;
-  reason: TextRejectReason;
-};
-
-export type PreparedText = AcceptedText | RejectedText;
-
-export type IncomingText = {
-  idMessage: string;
-  chatId: string;
-  text: string;
-  chatName?: string;
+export type ChatWrite = {
+  canWrite: boolean;
+  readChats: () => readonly Chat[];
+  beginRequest: () => void;
 };

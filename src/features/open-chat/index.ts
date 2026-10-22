@@ -1,12 +1,2 @@
 export { openChat } from "./openChat";
-export type {
-  OpenChatAborted,
-  OpenChatCreated,
-  OpenChatDenied,
-  OpenChatFailed,
-  OpenChatInput,
-  OpenChatInvalid,
-  OpenChatRejected,
-  OpenChatResult,
-  OpenChatSelected,
-} from "./types";
+export type { OpenChatInput, OpenChatResult } from "./types";

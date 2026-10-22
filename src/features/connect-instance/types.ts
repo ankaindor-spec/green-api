@@ -1,28 +1,12 @@
-import type { QueryClient } from "@tanstack/react-query";
 import type { InstanceData } from "@/entities/chat";
-import type { ApiCredentials } from "@/shared/api";
+import type { InstanceQuery, Variant, WithMessage } from "@/shared/lib";
 
 export type ConnectGateKind = "state" | "settings" | "error";
 
-export type ConnectAborted = {
-  type: "aborted";
-};
+export type ConnectResult = Variant<"type", {
+  aborted: void;
+  chat: { data: InstanceData };
+  gate: { kind: ConnectGateKind } & WithMessage;
+}>;
 
-export type ConnectChat = {
-  type: "chat";
-  data: InstanceData;
-};
-
-export type ConnectGate = {
-  type: "gate";
-  kind: ConnectGateKind;
-  message: string;
-};
-
-export type ConnectResult = ConnectAborted | ConnectChat | ConnectGate;
-
-export type ConnectInput = {
-  queryClient: QueryClient;
-  credentials: ApiCredentials;
-  signal: AbortSignal;
-};
+export type ConnectInput = InstanceQuery;

@@ -1,10 +1,10 @@
 import type { IncomingText } from "@/entities/chat";
 import type { GreenApiClient } from "@/shared/api";
+import type { WithMessage } from "@/shared/lib";
 
 export type PollCode = "webhook" | "unauthorized" | "transient";
 
-export type PollProblem = {
-  message: string;
+export type PollProblem = WithMessage & {
   code: PollCode;
 };
 

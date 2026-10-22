@@ -1,5 +1,3 @@
-export type Session = {
-  idInstance: string;
-  apiTokenInstance: string;
-  apiUrl: string;
-};
+import type { ApiCredentials } from "@/shared/api";
+
+export type Session = ApiCredentials;

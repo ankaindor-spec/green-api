@@ -1,14 +1,9 @@
 import { useState, type FormEvent } from "react";
-
-export type LoginInput = {
-  idInstance: string;
-  apiTokenInstance: string;
-  apiUrl: string;
-};
+import type { Session } from "@/entities/session";
 
 type Props = {
   error: string | null;
-  onSubmit: (input: LoginInput) => void;
+  onSubmit: (input: Session) => void;
 };
 
 export function LoginPage({ error, onSubmit }: Props) {

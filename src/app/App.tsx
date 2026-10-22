@@ -23,7 +23,7 @@ import { holdNotificationLock, receiveLoop, type LockBlock, type PollProblem } f
 import { sendText } from "@/features/send-message";
 import { ChatPage } from "@/pages/chat";
 import { GatePage } from "@/pages/gate";
-import { LoginPage, type LoginInput } from "@/pages/login";
+import { LoginPage } from "@/pages/login";
 import { createGreenApi, describeError, resolveApiUrl } from "@/shared/api";
 import type { GateKind, GateView, Phase } from "./types";
 
@@ -185,7 +185,7 @@ export function App() {
     setCanWrite(false);
   }
 
-  function submitLogin(input: LoginInput) {
+  function submitLogin(input: Session) {
     try {
       resolveApiUrl(input.idInstance, input.apiUrl);
     } catch (error) {
