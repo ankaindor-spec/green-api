@@ -1,0 +1,108 @@
+{
+  "name": "A. Импорт компаний",
+  "description": "Ручной импорт двух вымышленных строк из n8n/sample/companies.csv. Домен нормализуется локально. Существующая строка обновляет name и source, status не меняется.",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Импорт без обхода сети\nКанонический файл: `n8n/sample/companies.csv`.\n\nУзел «Строки companies.csv» содержит те же две строки доменов `.example`.\nНормализация в памяти: нижний регистр, схема, `www.`, порт, путь и query.\n\nPostgres делает upsert по `domain`: обновляются только `name` и `source`. `status` уже существующей компании не меняется. Новая строка получает `status = new`.",
+        "height": 300,
+        "width": 520,
+        "color": 4
+      },
+      "id": "a1111111-1111-4111-8111-111111111101",
+      "name": "Заметка: источник CSV",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        40
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "a1111111-1111-4111-8111-111111111102",
+      "name": "Ручной запуск",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Канонический файл: n8n/sample/companies.csv\n// Те же две вымышленные строки. Сеть не используется.\nconst SAMPLE_SOURCE = \"n8n/sample/companies.csv\";\nconst rows = [\n  {\n    \"name\": \"Ласточка Упаковка\",\n    \"domain\": \"lastochka-pack.example\",\n    \"website_url\": \"https://lastochka-pack.example\",\n    \"industry\": \"packaging\",\n    \"region\": \"Карелия\",\n    \"description\": \"Вымышленный цех картонной упаковки для локальной демонстрации LeadOps.\",\n    \"source_url\": \"https://catalog.example/companies/lastochka-pack\"\n  },\n  {\n    \"name\": \"Тихий Причал\",\n    \"domain\": \"tihiy-prichal.example\",\n    \"website_url\": \"https://tihiy-prichal.example\",\n    \"industry\": \"logistics\",\n    \"region\": \"Архангельская область\",\n    \"description\": \"Вымышленная каботажная логистика для локальной демонстрации LeadOps. Контактов нет.\",\n    \"source_url\": \"https://catalog.example/companies/tihiy-prichal\"\n  }\n];\n\nfunction normalizeDomain(value) {\n  let domain = String(value || '').trim().toLowerCase();\n  domain = domain.replace(/^[a-z][a-z0-9+.-]*:\\/\\//, '');\n  domain = domain.split(/[/?#]/)[0];\n  domain = domain.replace(/:\\d+$/, '');\n  if (domain.startsWith('www.')) domain = domain.slice(4);\n  domain = domain.replace(/\\.$/, '');\n  return domain;\n}\n\nreturn rows.map((row) => {\n  const domain = normalizeDomain(row.domain || row.website_url);\n  if (!domain || !domain.includes('.')) {\n    throw new Error('Пустой или некорректный домен в строке выборки');\n  }\n  return {\n    json: {\n      name: String(row.name || '').trim(),\n      domain,\n      website_url: String(row.website_url || '').trim(),\n      industry: String(row.industry || '').trim(),\n      region: String(row.region || '').trim(),\n      description: String(row.description || '').trim(),\n      source_url: String(row.source_url || '').trim(),\n      source: SAMPLE_SOURCE,\n    },\n  };\n});\n"
+      },
+      "id": "a1111111-1111-4111-8111-111111111103",
+      "name": "Строки companies.csv",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        520,
+        420
+      ],
+      "notes": "Данные совпадают с n8n/sample/companies.csv. HTTP-запросов нет.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO companies (\n  name,\n  domain,\n  website_url,\n  industry,\n  region,\n  description,\n  source_url,\n  source,\n  status\n) VALUES (\n  $1, $2, $3, $4, $5, $6, $7, $8, 'new'\n)\nON CONFLICT (domain) DO UPDATE SET\n  name = EXCLUDED.name,\n  source = EXCLUDED.source\nRETURNING id, domain, name, source, status;",
+        "options": {
+          "queryReplacement": "={{ [$json.name, $json.domain, $json.website_url, $json.industry, $json.region, $json.description, $json.source_url, $json.source] }}"
+        }
+      },
+      "id": "a1111111-1111-4111-8111-111111111104",
+      "name": "Upsert companies",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        840,
+        420
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_LEADOPS_LOCAL_POSTGRES",
+          "name": "LeadOps Local Postgres"
+        }
+      },
+      "notes": "ON CONFLICT (domain) обновляет name и source. status в SET не входит.",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "Ручной запуск": {
+      "main": [
+        [
+          {
+            "node": "Строки companies.csv",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Строки companies.csv": {
+      "main": [
+        [
+          {
+            "node": "Upsert companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "versionId": "a1111111-1111-4111-8111-111111111101"
+}

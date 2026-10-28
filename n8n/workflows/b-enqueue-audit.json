@@ -1,0 +1,112 @@
+{
+  "name": "B. Очередь аудита",
+  "description": "Ручной отбор до 10 компаний со статусом audit_pending или new и постановка jobs.type = audit. Браузер n8n не запускает.",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Аудит выполняет приложение\nВыбираются компании со статусом `audit_pending` или `new`, не больше 10.\n\nВставляется `jobs.type = audit`, `jobs.status = pending`.\nПовторный запуск не добавляет вторую такую же pending-строку.\n\nУзлов браузера и HTTP нет.",
+        "height": 260,
+        "width": 480,
+        "color": 4
+      },
+      "id": "b2222222-2222-4222-8222-222222222201",
+      "name": "Заметка: только очередь",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        40
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "b2222222-2222-4222-8222-222222222202",
+      "name": "Ручной запуск",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id AS company_id, name, domain, status\nFROM companies\nWHERE status IN ('audit_pending', 'new')\nORDER BY id ASC\nLIMIT 10;",
+        "options": {}
+      },
+      "id": "b2222222-2222-4222-8222-222222222203",
+      "name": "Компании к аудиту",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        520,
+        380
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_LEADOPS_LOCAL_POSTGRES",
+          "name": "LeadOps Local Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO jobs (company_id, type, status)\nSELECT $1::bigint, 'audit', 'pending'\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM jobs\n  WHERE company_id = $1::bigint\n    AND type = 'audit'\n    AND status = 'pending'\n)\nRETURNING id, company_id, type, status;",
+        "options": {
+          "queryReplacement": "={{ [$json.company_id] }}"
+        }
+      },
+      "id": "b2222222-2222-4222-8222-222222222204",
+      "name": "jobs audit pending",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        840,
+        380
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_LEADOPS_LOCAL_POSTGRES",
+          "name": "LeadOps Local Postgres"
+        }
+      },
+      "notes": "Только INSERT в jobs. Браузер не запускается.",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "Ручной запуск": {
+      "main": [
+        [
+          {
+            "node": "Компании к аудиту",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Компании к аудиту": {
+      "main": [
+        [
+          {
+            "node": "jobs audit pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "versionId": "b2222222-2222-4222-8222-222222222201"
+}

@@ -1,0 +1,112 @@
+{
+  "name": "C. Очередь квалификации",
+  "description": "Ручной отбор компаний с завершённым аудитом и без возможности. Ставит jobs.type = qualify. Провайдера ИИ из n8n не вызывает.",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Квалификацию считает приложение\nКомпания попадает в выборку, если есть `audits.status = completed` и нет строки в `opportunities`.\n\nВставляется `jobs.type = qualify`, `jobs.status = pending`.\nСекреты и редактирование ответа остаются в приложении: узла провайдера ИИ нет.",
+        "height": 260,
+        "width": 500,
+        "color": 4
+      },
+      "id": "c3333333-3333-4333-8333-333333333301",
+      "name": "Заметка: ИИ в приложении",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        40
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "c3333333-3333-4333-8333-333333333302",
+      "name": "Ручной запуск",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DISTINCT c.id AS company_id, c.domain, c.name\nFROM companies c\nINNER JOIN audits a\n  ON a.company_id = c.id\n AND a.status = 'completed'\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM opportunities o\n  WHERE o.company_id = c.id\n)\nORDER BY c.id ASC;",
+        "options": {}
+      },
+      "id": "c3333333-3333-4333-8333-333333333303",
+      "name": "Компании без возможности",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        520,
+        380
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_LEADOPS_LOCAL_POSTGRES",
+          "name": "LeadOps Local Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO jobs (company_id, type, status)\nSELECT $1::bigint, 'qualify', 'pending'\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM jobs\n  WHERE company_id = $1::bigint\n    AND type = 'qualify'\n    AND status = 'pending'\n)\nRETURNING id, company_id, type, status;",
+        "options": {
+          "queryReplacement": "={{ [$json.company_id] }}"
+        }
+      },
+      "id": "c3333333-3333-4333-8333-333333333304",
+      "name": "jobs qualify pending",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        860,
+        380
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_LEADOPS_LOCAL_POSTGRES",
+          "name": "LeadOps Local Postgres"
+        }
+      },
+      "notes": "Только INSERT в jobs. Вызова ИИ нет.",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "Ручной запуск": {
+      "main": [
+        [
+          {
+            "node": "Компании без возможности",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Компании без возможности": {
+      "main": [
+        [
+          {
+            "node": "jobs qualify pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "versionId": "c3333333-3333-4333-8333-333333333301"
+}

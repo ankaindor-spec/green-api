@@ -1,0 +1,112 @@
+{
+  "name": "D. Очередь черновика",
+  "description": "Ручной отбор возможностей approved_for_drafting без черновика. Ставит jobs.type = draft. Узла отправки нет.",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Только постановка черновика в очередь\nБерутся `opportunities.status = approved_for_drafting`, для которых нет строки в `drafts`.\n\nВставляется `jobs.type = draft`, `jobs.status = pending`.\nПисьмо, Telegram и webhook не отправляются.",
+        "height": 240,
+        "width": 500,
+        "color": 4
+      },
+      "id": "d4444444-4444-4444-8444-444444444401",
+      "name": "Заметка: без отправки",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        40
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "d4444444-4444-4444-8444-444444444402",
+      "name": "Ручной запуск",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT o.id AS opportunity_id, o.company_id\nFROM opportunities o\nWHERE o.status = 'approved_for_drafting'\n  AND NOT EXISTS (\n    SELECT 1\n    FROM drafts d\n    WHERE d.opportunity_id = o.id\n  )\nORDER BY o.id ASC;",
+        "options": {}
+      },
+      "id": "d4444444-4444-4444-8444-444444444403",
+      "name": "Возможности без черновика",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        520,
+        360
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_LEADOPS_LOCAL_POSTGRES",
+          "name": "LeadOps Local Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO jobs (company_id, opportunity_id, type, status)\nSELECT $1::bigint, $2::bigint, 'draft', 'pending'\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM jobs\n  WHERE opportunity_id = $2::bigint\n    AND type = 'draft'\n    AND status = 'pending'\n)\nRETURNING id, company_id, opportunity_id, type, status;",
+        "options": {
+          "queryReplacement": "={{ [$json.company_id, $json.opportunity_id] }}"
+        }
+      },
+      "id": "d4444444-4444-4444-8444-444444444404",
+      "name": "jobs draft pending",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        860,
+        360
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_LEADOPS_LOCAL_POSTGRES",
+          "name": "LeadOps Local Postgres"
+        }
+      },
+      "notes": "Только INSERT в jobs. Узла отправки нет.",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "Ручной запуск": {
+      "main": [
+        [
+          {
+            "node": "Возможности без черновика",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Возможности без черновика": {
+      "main": [
+        [
+          {
+            "node": "jobs draft pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "versionId": "d4444444-4444-4444-8444-444444444401"
+}

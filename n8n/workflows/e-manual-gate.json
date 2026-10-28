@@ -1,0 +1,191 @@
+{
+  "name": "E. Ручной допуск",
+  "description": "Ручная отметка утверждённых черновиков. Пишет activities и не отправляет сообщения. drafts.status не меняется.",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Сценарий E не отправляет сообщения\nБерутся черновики со статусом `approved`.\n\nЕсли домен компании есть в `suppression_list`, пишется activity `blocked_by_suppression`.\nИначе пишется activity `ready_for_manual_contact`.\n\n`drafts` не обновляется и не переводится в sent. Узлов SMTP, почты, Telegram и webhook нет. Связь с компанией остаётся за человеком вне n8n.",
+        "height": 300,
+        "width": 560,
+        "color": 4
+      },
+      "id": "e5555555-5555-4555-8555-555555555501",
+      "name": "Заметка: сообщения не уходят",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        20
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "e5555555-5555-4555-8555-555555555502",
+      "name": "Ручной запуск",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  d.id AS draft_id,\n  c.id AS company_id,\n  c.domain,\n  CASE\n    WHEN EXISTS (\n      SELECT 1\n      FROM suppression_list s\n      WHERE lower(btrim(s.domain)) = lower(btrim(c.domain))\n    ) THEN 'yes'\n    ELSE 'no'\n  END AS suppressed\nFROM drafts d\nINNER JOIN opportunities o ON o.id = d.opportunity_id\nINNER JOIN companies c ON c.id = o.company_id\nWHERE d.status = 'approved'\nORDER BY d.id ASC;",
+        "options": {}
+      },
+      "id": "e5555555-5555-4555-8555-555555555503",
+      "name": "Утверждённые черновики",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        500,
+        400
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_LEADOPS_LOCAL_POSTGRES",
+          "name": "LeadOps Local Postgres"
+        }
+      },
+      "notes": "Только чтение drafts, opportunities, companies и suppression_list.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e5555555-5555-4555-8555-555555555510",
+              "leftValue": "={{ $json.suppressed }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e5555555-5555-4555-8555-555555555504",
+      "name": "Домен в suppression_list",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        780,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO activities (draft_id, company_id, action)\nSELECT $1::bigint, $2::bigint, 'blocked_by_suppression'\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM activities a\n  WHERE a.draft_id = $1::bigint\n    AND a.action = 'blocked_by_suppression'\n)\nRETURNING id, draft_id, company_id, action;",
+        "options": {
+          "queryReplacement": "={{ [$json.draft_id, $json.company_id] }}"
+        }
+      },
+      "id": "e5555555-5555-4555-8555-555555555505",
+      "name": "activity blocked_by_suppression",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1100,
+        280
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_LEADOPS_LOCAL_POSTGRES",
+          "name": "LeadOps Local Postgres"
+        }
+      },
+      "notes": "Не меняет drafts и ничего не отправляет.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO activities (draft_id, company_id, action)\nSELECT $1::bigint, $2::bigint, 'ready_for_manual_contact'\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM activities a\n  WHERE a.draft_id = $1::bigint\n    AND a.action = 'ready_for_manual_contact'\n)\nRETURNING id, draft_id, company_id, action;",
+        "options": {
+          "queryReplacement": "={{ [$json.draft_id, $json.company_id] }}"
+        }
+      },
+      "id": "e5555555-5555-4555-8555-555555555506",
+      "name": "activity ready_for_manual_contact",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1100,
+        520
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_LEADOPS_LOCAL_POSTGRES",
+          "name": "LeadOps Local Postgres"
+        }
+      },
+      "notes": "Не меняет drafts и ничего не отправляет. Контакт выполняет человек вне n8n.",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "Ручной запуск": {
+      "main": [
+        [
+          {
+            "node": "Утверждённые черновики",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Утверждённые черновики": {
+      "main": [
+        [
+          {
+            "node": "Домен в suppression_list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Домен в suppression_list": {
+      "main": [
+        [
+          {
+            "node": "activity blocked_by_suppression",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "activity ready_for_manual_contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "versionId": "e5555555-5555-4555-8555-555555555501"
+}
